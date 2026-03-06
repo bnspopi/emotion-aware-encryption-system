@@ -1,26 +1,26 @@
-def detect_emotion(text):
-    text = text.lower()
+from transformers import pipeline
 
-    emotions = {
-        "anger": ["hate", "angry", "mad", "furious"],
-        "joy": ["love", "happy", "great", "amazing"],
-        "sadness": ["sad", "cry", "depressed", "upset"],
-        "fear": ["scared", "afraid", "fear", "terrified"],
-        "surprise": ["wow", "surprised", "unexpected"]
-    }
+emotion_pipeline = pipeline(
+    "text-classification",
+    model="j-hartmann/emotion-english-distilroberta-base",
+    top_k=None
+)
+
+
+def detect_emotion(text):
+
+    results = emotion_pipeline(text)[0]
 
     scores = {}
 
-    for emotion, words in emotions.items():
-        scores[emotion] = sum(word in text for word in words)
+    for r in results:
+        scores[r["label"]] = round(r["score"] * 100, 2)
 
-    detected = max(scores, key=scores.get)
-
-    total = sum(scores.values()) + 1
-    confidence = round((scores[detected] / total) * 100, 2)
+    detected_emotion = max(scores, key=scores.get)
+    confidence = scores[detected_emotion]
 
     return {
-        "emotion": detected,
+        "emotion": detected_emotion,
         "confidence": confidence,
         "scores": scores
     }
