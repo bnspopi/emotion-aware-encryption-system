@@ -7,22 +7,25 @@ from emotion_detector import detect_emotion
 app = Flask(__name__)
 CORS(app)
 
+@app.route("/")
+def home():
+    return jsonify({"message": "Emotion Aware Encryption API Running"})
 
-# -----------------------------
-# Encrypt + Detect Emotion
-# -----------------------------
+
+# -------------------------
+# Encrypt + Emotion Detect
+# -------------------------
 @app.route("/encrypt", methods=["POST"])
 def encrypt():
+
     data = request.json
     message = data.get("message")
 
     if not message:
         return jsonify({"error": "No message provided"}), 400
 
-    # Detect emotion
     emotion_data = detect_emotion(message)
 
-    # Encrypt message
     encrypted_text = encrypt_message(message)
 
     return jsonify({
@@ -33,43 +36,24 @@ def encrypt():
     })
 
 
-# -----------------------------
-# Decrypt Message
-# -----------------------------
+# -------------------------
+# Decrypt
+# -------------------------
 @app.route("/decrypt", methods=["POST"])
 def decrypt():
+
     data = request.json
     encrypted_text = data.get("encrypted")
 
     if not encrypted_text:
-        return jsonify({"error": "No encrypted text provided"}), 400
+        return jsonify({"error": "No encrypted text"}), 400
 
-    try:
-        decrypted_message = decrypt_message(encrypted_text)
+    decrypted = decrypt_message(encrypted_text)
 
-        return jsonify({
-            "decrypted": decrypted_message
-        })
-
-    except Exception as e:
-        return jsonify({
-            "error": "Decryption failed",
-            "details": str(e)
-        }), 500
-
-
-# -----------------------------
-# Health Check Route
-# -----------------------------
-@app.route("/")
-def home():
     return jsonify({
-        "message": "Emotion Aware Encryption API Running"
+        "decrypted": decrypted
     })
 
 
-# -----------------------------
-# Run Server
-# -----------------------------
 if __name__ == "__main__":
     app.run(debug=True)
