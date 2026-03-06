@@ -6,25 +6,27 @@ function App() {
   const [message, setMessage] = useState("");
   const [encrypted, setEncrypted] = useState("");
   const [emotion, setEmotion] = useState("");
+  const [confidence, setConfidence] = useState("");
   const [decrypted, setDecrypted] = useState("");
 
   const encryptMessage = async () => {
 
-    const res = await axios.post("http://localhost:5000/encrypt", {
+    const res = await axios.post("http://127.0.0.1:5000/encrypt", {
       message: message
     });
 
-    setEncrypted(res.data.encrypted_text);
+    setEncrypted(res.data.encrypted);
     setEmotion(res.data.emotion);
+    setConfidence(res.data.confidence);
   };
 
   const decryptMessage = async () => {
 
-    const res = await axios.post("http://localhost:5000/decrypt", {
-      encrypted_text: encrypted
+    const res = await axios.post("http://127.0.0.1:5000/decrypt", {
+      encrypted: encrypted
     });
 
-    setDecrypted(res.data.decrypted_message);
+    setDecrypted(res.data.decrypted);
   };
 
   return (
@@ -48,6 +50,9 @@ function App() {
 
       <h3>Detected Emotion</h3>
       <p>{emotion}</p>
+
+      <h3>Confidence</h3>
+      <p>{confidence}%</p>
 
       <button onClick={decryptMessage}>Decrypt</button>
 
