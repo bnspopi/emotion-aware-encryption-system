@@ -1,3 +1,5 @@
 flask
-cryptography
 flask-cors
+cryptography
+transformers
+torch
