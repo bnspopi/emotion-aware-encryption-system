@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
 from encryption import encrypt_message, decrypt_message
 from emotion_detector import detect_emotion
 
@@ -9,12 +8,8 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return jsonify({"message": "Emotion Aware Encryption API Running"})
+    return "Emotion Aware Encryption API Running"
 
-
-# -------------------------
-# Encrypt + Emotion Detect
-# -------------------------
 @app.route("/encrypt", methods=["POST"])
 def encrypt():
 
@@ -36,22 +31,19 @@ def encrypt():
     })
 
 
-# -------------------------
-# Decrypt
-# -------------------------
 @app.route("/decrypt", methods=["POST"])
 def decrypt():
 
     data = request.json
-    encrypted_text = data.get("encrypted")
+    encrypted = data.get("encrypted")
 
-    if not encrypted_text:
+    if not encrypted:
         return jsonify({"error": "No encrypted text"}), 400
 
-    decrypted = decrypt_message(encrypted_text)
+    decrypted_text = decrypt_message(encrypted)
 
     return jsonify({
-        "decrypted": decrypted
+        "decrypted": decrypted_text
     })
 
 
