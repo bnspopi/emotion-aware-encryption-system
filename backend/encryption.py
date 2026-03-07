@@ -1,15 +1,12 @@
 from cryptography.fernet import Fernet
 
-# Static key for demo
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-
-def encrypt_message(message):
+def encrypt_message(message: str):
     encrypted = cipher.encrypt(message.encode())
     return encrypted.decode()
 
-
-def decrypt_message(encrypted_text):
-    decrypted = cipher.decrypt(encrypted_text.encode())
+def decrypt_message(token: str):
+    decrypted = cipher.decrypt(token.encode())
     return decrypted.decode()
