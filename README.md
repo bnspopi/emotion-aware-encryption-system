@@ -1,3 +1,11 @@
+
+
+https://github.com/user-attachments/assets/06dabfbf-2bab-497f-a2c2-6d1f9c31ec69
+
+
+
+https://github.com/user-attachments/assets/eff91568-9bcc-43cc-8687-422ca345c354
+
 # Emotion-Aware Encryption System
 
 ## Overview
