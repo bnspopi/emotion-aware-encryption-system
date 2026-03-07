@@ -10,23 +10,25 @@ def detect_emotion(text):
 
     results = emotion_model(text)[0]
 
-    scores = {}
+    emotions = []
 
     for r in results:
-        scores[r["label"]] = round(r["score"] * 100, 2)
+        label = r["label"]
+        score = round(r["score"] * 100, 2)
 
-    # sort emotions by score
-    sorted_emotions = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        # Ignore neutral
+        if label != "neutral":
+            emotions.append((label, score))
 
-    # top 2 emotions
-    top1 = sorted_emotions[0]
-    top2 = sorted_emotions[1]
+    emotions = sorted(emotions, key=lambda x: x[1], reverse=True)
+
+    top1 = emotions[0]
+    top2 = emotions[1]
 
     emotion_text = f"{top1[0]} + {top2[0]}"
     confidence_text = f"{top1[1]}% + {top2[1]}%"
 
     return {
         "emotion": emotion_text,
-        "confidence": confidence_text,
-        "scores": scores
+        "confidence": confidence_text
     }
