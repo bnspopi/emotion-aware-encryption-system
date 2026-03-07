@@ -1,66 +1,57 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { encryptMessage, decryptMessage } from "./api";
 
-function App() {
+export default function App() {
 
-  const [message, setMessage] = useState("");
-  const [encrypted, setEncrypted] = useState("");
+  const [text, setText] = useState("");
+  const [cipher, setCipher] = useState("");
   const [emotion, setEmotion] = useState("");
-  const [confidence, setConfidence] = useState("");
-  const [decrypted, setDecrypted] = useState("");
+  const [original, setOriginal] = useState("");
 
-  const encryptMessage = async () => {
+  const encrypt = async () => {
 
-    const res = await axios.post("http://127.0.0.1:5000/encrypt", {
-      message: message
-    });
+    const res = await encryptMessage(text);
 
-    setEncrypted(res.data.encrypted);
-    setEmotion(res.data.emotion);
-    setConfidence(res.data.confidence);
+    setCipher(res.encrypted_text);
+    setEmotion(res.emotion);
   };
 
-  const decryptMessage = async () => {
+  const decrypt = async () => {
 
-    const res = await axios.post("http://127.0.0.1:5000/decrypt", {
-      encrypted: encrypted
-    });
+    const res = await decryptMessage(cipher);
 
-    setDecrypted(res.data.decrypted);
+    setOriginal(res.original_message);
+    setEmotion(res.emotion);
   };
 
   return (
-    <div style={{ padding: 40 }}>
 
-      <h1>Emotion Aware Encryption</h1>
+    <div style={{padding:40,fontFamily:"Arial"}}>
 
-      <input
-        style={{ width: 400 }}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Enter message"
+      <h1>Mini Emotion Cipher</h1>
+
+      <textarea
+        rows="4"
+        cols="60"
+        placeholder="Enter message..."
+        onChange={(e)=>setText(e.target.value)}
       />
 
       <br/><br/>
 
-      <button onClick={encryptMessage}>Encrypt</button>
+      <button onClick={encrypt}>Encrypt</button>
 
       <h3>Encrypted Text</h3>
-      <p>{encrypted}</p>
+      <p>{cipher}</p>
 
       <h3>Detected Emotion</h3>
       <p>{emotion}</p>
 
-      <h3>Confidence</h3>
-      <p>{confidence}</p>
+      <button onClick={decrypt}>Decrypt</button>
 
-      <button onClick={decryptMessage}>Decrypt</button>
-
-      <h3>Decrypted Message</h3>
-      <p>{decrypted}</p>
+      <h3>Original Message</h3>
+      <p>{original}</p>
 
     </div>
   );
 }
-
-export default App;
