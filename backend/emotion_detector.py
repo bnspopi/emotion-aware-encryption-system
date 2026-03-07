@@ -1,34 +1,29 @@
-from transformers import pipeline
-
-emotion_model = pipeline(
-    "text-classification",
-    model="j-hartmann/emotion-english-distilroberta-base",
-    top_k=None
-)
-
 def detect_emotion(text):
 
-    results = emotion_model(text)[0]
+    text = text.lower()
 
-    emotions = []
+    joy_words = ["ecstatic","happy","excited","love","great","joy"]
+    anxiety_words = ["anxious","nervous","deadline","stress"]
+    anger_words = ["hate","angry","mad"]
+    sadness_words = ["sad","depressed","cry"]
 
-    for r in results:
-        label = r["label"]
-        score = round(r["score"] * 100, 2)
+    scores = {
+        "joy": sum(word in text for word in joy_words),
+        "anxiety": sum(word in text for word in anxiety_words),
+        "anger": sum(word in text for word in anger_words),
+        "sadness": sum(word in text for word in sadness_words)
+    }
 
-        # Ignore neutral
-        if label != "neutral":
-            emotions.append((label, score))
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
-    emotions = sorted(emotions, key=lambda x: x[1], reverse=True)
-
-    top1 = emotions[0]
-    top2 = emotions[1]
+    top1 = sorted_scores[0]
+    top2 = sorted_scores[1]
 
     emotion_text = f"{top1[0]} + {top2[0]}"
-    confidence_text = f"{top1[1]}% + {top2[1]}%"
+    confidence_text = f"{top1[1]*50}% + {top2[1]*50}%"
 
     return {
         "emotion": emotion_text,
-        "confidence": confidence_text
+        "confidence": confidence_text,
+        "scores": scores
     }
