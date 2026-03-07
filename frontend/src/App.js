@@ -1,61 +1,104 @@
-import React, { useState } from "react"
-import { encryptMessage, decryptMessage } from "./api"
+import React, { useState } from "react";
+import axios from "axios";
 
-export default function App(){
+function App() {
 
-  const [text,setText] = useState("")
-  const [cipher,setCipher] = useState("")
-  const [emotion,setEmotion] = useState("")
-  const [original,setOriginal] = useState("")
+  const [message, setMessage] = useState("");
+  const [encrypted, setEncrypted] = useState("");
+  const [emotion, setEmotion] = useState("");
+  const [confidence, setConfidence] = useState(0);
+  const [decrypted, setDecrypted] = useState("");
 
-  const encrypt = async () => {
+  const encryptMessage = async () => {
 
-    if(!text) return
+    try {
 
-    const res = await encryptMessage(text)
+      const res = await axios.post("http://127.0.0.1:5000/encrypt", {
+        message: message
+      });
 
-    setCipher(res.encrypted_text)
-    setEmotion(res.emotion)
+      setEncrypted(res.data.encrypted);
+      setEmotion(res.data.emotion);
+      setConfidence(res.data.confidence);
+
+    } catch (error) {
+
+      console.error(error);
+      alert("Encryption failed. Check backend.");
+
+    }
+  };
+
+  const decryptMessage = async () => {
+
+  try {
+
+    const res = await axios.post("http://127.0.0.1:5000/decrypt", {
+      encrypted: encrypted
+    });
+
+    setDecrypted(res.data.decrypted);
+
+  } catch (error) {
+
+    console.log(error);
+    alert("Backend not running");
+
   }
 
-  const decrypt = async () => {
-
-    if(!cipher) return
-
-    const res = await decryptMessage(cipher)
-
-    setOriginal(res.original_message)
-    setEmotion(res.emotion)
-  }
+};
 
   return (
+    <div style={{ padding: 40, fontFamily: "Arial" }}>
 
-    <div style={{padding:40,fontFamily:"Arial"}}>
+      <h1>Emotion Aware Encryption</h1>
 
-      <h1>Emotion Cipher 🔐</h1>
-
-      <textarea
-        rows="5"
-        cols="60"
-        placeholder="Enter your message..."
-        onChange={(e)=>setText(e.target.value)}
+      <input
+        style={{ width: 500, padding: 8 }}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Enter message"
       />
 
       <br/><br/>
 
-      <button onClick={encrypt}>Encrypt Message</button>
+      <button onClick={encryptMessage}>Encrypt</button>
 
       <h3>Encrypted Text</h3>
-      <p>{cipher}</p>
+      <p style={{ wordBreak: "break-all" }}>{encrypted}</p>
 
       <h3>Detected Emotion</h3>
       <p>{emotion}</p>
 
-      <button onClick={decrypt}>Decrypt Message</button>
+      <h3>Confidence</h3>
 
-      <h3>Original Message</h3>
-      <p>{original}</p>
+      <div
+        style={{
+          width: "400px",
+          background: "#ddd",
+          height: "20px",
+          borderRadius: "10px"
+        }}
+      >
+        <div
+          style={{
+            width: confidence + "%",
+            background: "green",
+            height: "100%",
+            borderRadius: "10px"
+          }}
+        />
+      </div>
+
+      <p>{confidence}%</p>
+
+      <button onClick={decryptMessage}>Decrypt</button>
+
+      <h3>Decrypted Message</h3>
+      <p>{decrypted}</p>
 
     </div>
-  )
+  );
 }
+
+export default App;
