@@ -52,7 +52,7 @@ function App() {
       <p>{emotion}</p>
 
       <h3>Confidence</h3>
-      <p>{confidence}%</p>
+      <p>{confidence}</p>
 
       <button onClick={decryptMessage}>Decrypt</button>
 
