@@ -1,42 +1,46 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 from encryption import encrypt_message, decrypt_message
-from emotion_detector import detect_emotion
+from emotion import detect_emotion
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
 
-@app.route("/")
-def home():
-    return "Emotion Aware Encryption API Running"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.route("/encrypt", methods=["POST"])
-def encrypt():
+class Message(BaseModel):
+    text: str
 
-    data = request.json
-    message = data.get("message")
+class Cipher(BaseModel):
+    cipher: str
 
-    emotion_data = detect_emotion(message)
+@app.post("/encrypt")
+def encrypt(msg: Message):
 
-    encrypted_text = encrypt_message(message)
+    emotion = detect_emotion(msg.text)
 
-    return jsonify({
-        "encrypted": encrypted_text,
-        "emotion": emotion_data["emotion"],
-        "confidence": emotion_data["confidence"]
-    })
+    encrypted = encrypt_message(msg.text)
 
-@app.route("/decrypt", methods=["POST"])
-def decrypt():
+    return {
+        "encrypted_text": encrypted,
+        "emotion": emotion
+    }
 
-    data = request.json
-    encrypted = data.get("encrypted")
+@app.post("/decrypt")
+def decrypt(data: Cipher):
 
-    decrypted_text = decrypt_message(encrypted)
+    original = decrypt_message(data.cipher)
 
-    return jsonify({
-        "decrypted": decrypted_text
-    })
+    emotion = detect_emotion(original)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    return {
+        "original_message": original,
+        "emotion": emotion
+    }
